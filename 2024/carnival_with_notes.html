@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<!-- 
+Three important web technologies:
+  -       HTML: what the page is (like a title and some paragraphs)
+  -        CSS: what the page looks like (we won't use that today)
+  - Javascript: what the page does (in this case, draws a game on a canvas)
+
+The tags you see like <h1> are HTML - the "language" that structures the web page.
+-->
+<body>
+<h1>SCC Career Day Carnival</h1>
+
+<!-- For us to draw on a canvas, we have to create it first. -->
+<canvas id="myCanvas" width="800" height="500" style="border: 1px solid black;">
+  Sorry, your browser does not support canvas.
+</canvas>
+
+<!-- Javascript goes inside <script> tags. Here comes the big "coding" part: -->
+<script>
+  const canvas = document.getElementById("myCanvas"); // JS needs to recognize the canvas we made in HTML
+  const ctx = canvas.getContext("2d"); // a handle by which to work with the canvas
+
+  // Object-oriented programming is a big concept in Computer Science,
+  // but it's simple - in fact, simplifying things is why it exists.
+  // OOP is all about representing concepts in code. In this case, we
+  // want to tell our code:
+  //  * What information targets need to track
+  //     - "Where am I?", "What color am I?", "How big am I?"
+  //  * What targets should do
+  //     - Draw itself on the canvas, move across the screen
+  class Target {
+    constructor(x, y, radius, color, speed){
+      // A constructor receives basic initial information about an object.
+
+      this.x = x; // just like in math, we need an x and y to tell us...
+      this.y = y; // where the stuff we're drawing goes on the canvas
+      this.radius = radius;
+      this.color = color;
+      this.speed = speed; // we always set this to 3 but you can change it
+
+      this.remove = false; // this will tell targets to go away
+    }
+
+    draw(){
+      // outer circle
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+      ctx.fillStyle = this.color;
+      ctx.fill(); // fill the target with our desired color now
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "gray"; // the outer edge of the target
+      ctx.stroke(); // draw the border now
+
+      // inner circle
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius * 0.5, 0, 2 * Math.PI);
+      ctx.lineWidth = 10;
+      ctx.strokeStyle = "white";
+      ctx.stroke();
+    }
+
+    update(){
+      this.x += this.speed; // you could change the speed to make it more challenging
+
+      if (this.x > canvas.width){
+        this.remove = true; // detect if this target is off screen so we can remove
+      }
+
+      this.draw(); // don't forget to draw the target!
+    }
+  }
+
+  // first we'll pick out some random colors for our targets
+  var colors = []
+  while (colors.length < 25){
+    // in JavaScript, the whole spectrum of color
+    // is represented by numbers from 0 to 360
+    // 0 is red, 120 is green, 245 is blue, 360 is red again
+
+    // Math.random gives you a decimal number between
+    // 0 and 1, so multiplying 360 by it gives you
+    // a random number between 0 and 360. We'll round
+    // to the nearest whole number
+    colors.push(Math.round(Math.random() * 360));
+  }
+
+  // now we'll use the colors we have to make targets!
+  var targets = []
+  for (color of colors){
+    targets.push(
+      new Target(
+        Math.random() * -2000, // start the target offscreen
+        Math.random() * canvas.height,
+        40, // you could change this radius to change difficulty
+        `hsl(${color}, 100%, 50%)`,
+        3 // we always use 3 for speed - try changing this!
+      )
+    );
+  }
+
+  // There's one more important thing we need to do:
+  // detect if a target is clicked!
+  //
+  // Whenever a click happens, an "event" fires
+  // immediately. We'll respond to that event
+  // by telling any targets that the mouse was on
+  // during the click to take a "remove" status.
+  canvas.addEventListener('click', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    // check all the targets
+    for (target of targets){
+      // see if this target was clicked
+      var distance = Math.sqrt((mouseX - target.x) ** 2 + (mouseY - target.y) ** 2);
+
+      if (distance <= target.radius){
+        target.remove = true; // update the target's status
+      }
+    }
+  });
+
+  function loop() {
+    // clear the canvas each time - otherwise the targets would
+    // smudge their way across the screen (try removing this line to see it)
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // targets
+    targets = targets.filter(t => !t.remove) // we want to remove the targets we marked
+    targets.forEach(t => t.update()); // the targets themselves do most of the work
+
+    // request the next frame of the animation
+    requestAnimationFrame(loop);
+  }
+
+  // start the loop
+  requestAnimationFrame(loop);
+
+</script>
+
+</body>
+</html>
