@@ -37,7 +37,7 @@ The tags you see like <h1> are HTML - the "language" that structures the web pag
       this.y = y; // where the stuff we're drawing goes on the canvas
       this.radius = radius;
       this.color = color;
-      this.speed = speed; // we always set this to 3 but you can change it
+      this.speed = speed;
 
       this.remove = false; // this will tell targets to go away
     }
@@ -57,11 +57,11 @@ The tags you see like <h1> are HTML - the "language" that structures the web pag
       ctx.arc(this.x, this.y, this.radius * 0.5, 0, 2 * Math.PI);
       ctx.lineWidth = 10;
       ctx.strokeStyle = "white";
-      ctx.stroke();
+      ctx.stroke(); // this one's just a white border; no fill
     }
 
     update(){
-      this.x += this.speed; // you could change the speed to make it more challenging
+      this.x += this.speed; // this is what makes the targets move
 
       if (this.x > canvas.width){
         this.remove = true; // detect if this target is off screen so we can remove
@@ -72,8 +72,9 @@ The tags you see like <h1> are HTML - the "language" that structures the web pag
   }
 
   // first we'll pick out some random colors for our targets
-  var colors = []
-  while (colors.length < 25){
+  var number_of_targets = 25; // change this for more or fewer targets
+  var colors = [] // this container holds the colors we chose
+  while (colors.length < number_of_targets){
     // in JavaScript, the whole spectrum of color
     // is represented by numbers from 0 to 360
     // 0 is red, 120 is green, 245 is blue, 360 is red again
@@ -83,17 +84,28 @@ The tags you see like <h1> are HTML - the "language" that structures the web pag
     // a random number between 0 and 360. We'll round
     // to the nearest whole number
     colors.push(Math.round(Math.random() * 360));
+    // .push adds each color to the "colors" container
   }
 
   // now we'll use the colors we have to make targets!
   var targets = []
   for (color of colors){
     targets.push(
-      new Target(
+      new Target( // calls the constructor
+        
+        // x
         Math.random() * -2000, // start the target offscreen
+        
+        // y
         Math.random() * canvas.height,
+        
+        // radius
         40, // you could change this radius to change difficulty
+        
+        // color
         `hsl(${color}, 100%, 50%)`,
+
+        // speed
         3 // we always use 3 for speed - try changing this!
       )
     );
