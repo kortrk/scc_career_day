@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>SCC Career Day Carnival</h1>
+
+<canvas id="myCanvas" width="800" height="500" style="border: 1px solid black;">
+  Sorry, your browser does not support canvas.
+</canvas>
+
+<script>
+  const canvas = document.getElementById("myCanvas");
+  const ctx = canvas.getContext("2d");
+
+  class Target {
+    constructor(x, y, radius, color, speed){
+      this.x = x;
+      this.y = y;
+      this.radius = radius;
+      this.color = color;
+      this.speed = speed;
+
+      this.remove = false;
+    }
+    
+    draw(){
+      // outer circle
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "gray";
+      ctx.stroke();
+
+      // inner circle
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius * 0.5, 0, 2 * Math.PI);
+      ctx.lineWidth = 10;
+      ctx.strokeStyle = "white";
+      ctx.stroke();
+    }
+
+    update(){
+      this.x += this.speed;
+      if (this.x > canvas.width){
+        this.remove = true;
+      }
+
+      this.draw();
+    }
+  }
+
+  var colors = []
+  while (colors.length < 25){
+    colors.push(Math.round(Math.random() * 360));
+  }
+
+  var targets = []
+  for (color of colors){
+    targets.push(
+      new Target(
+        Math.random() * -2000,
+        Math.random() * canvas.height,
+        40,
+        `hsl(${color}, 100%, 50%)`,
+        3
+      )
+    );
+  }
+
+  canvas.addEventListener('click', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    for (target of targets){
+      var distance = Math.sqrt((mouseX - target.x) ** 2 + (mouseY - target.y) ** 2);
+
+      if (distance <= target.radius){
+        target.remove = true;
+      }
+    }
+  });
+
+  function loop() {
+    // clear the canvas each time
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // targets
+    targets = targets.filter(t => !t.remove)
+    targets.forEach(t => t.update());
+
+    // request the next frame of the animation
+    requestAnimationFrame(loop);
+  }
+
+  // start the loop
+  requestAnimationFrame(loop);
+
+</script>
+
+</body>
+</html>
